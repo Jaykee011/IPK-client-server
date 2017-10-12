@@ -1,0 +1,52 @@
+ftrest
+	parametry:
+		cmd 			=> příkaz k vykonání na serveru
+						=> jeden z možných:
+							mkd => vytvoření složky specifikované v parametru remote-path
+							lst => výpis obsahu složky ve formátu shodném s bash utilitou ls bez přepínačů
+							del => smazání souboru specifikovaného v parametru remote-path
+							rmd => smazání prázdné složky specifikované v parametru remote-path
+							put => nahrání souboru specifikovaného v parametru local-path na místo specifikované v parametru remote-path
+							get => stažení souboru specifikovaného v parametru remote-path na místo specifikované v parametru local_path.
+								=> pokud není local-path uvedena, je implicitné zvolena složka z níž je ftrest spuštěn
+		remote-path 	=> URI ve tvaru "http://SERVER_NAME[:port]/USER/path"
+						=> část označená [:port] je volitelá, v případě absence bude zvolen port 6677
+		local-path 		=> relativní cesta k souboru
+						=> povinná pro příkaz put
+	použití:
+		=> ftrest cmd remote-path [local-path]
+
+	Ftresd je klient pro socketovou komunikaci s adresářovým serverem. Klient komunikuje v protokolu HTTP s použitím RESTful operací.
+
+	return:
+		0:
+			=> úspěšné provedení příkazu
+		1:
+			=> pokus o vytvoření již existujícího adresáře
+		2:
+			=> neznámý uživatel
+		3:
+			=> adresář nenalezen
+		4:
+			=> mazaný adresář není prázdný
+		5:
+			=> pokus o provedení adresářové operace nad souborem
+		6:
+			=> pokus o provedení souborové operace nad adresářem
+		7:
+			=> soubor nenalezen
+		127:
+			=> jiná chyba
+
+ftrestd
+	parametry:
+		-p PORT 		=> nepovinný parametr
+						=> naváže server socket na port uvedený argumentem PORT
+						=> implicitní port je 6677
+		-r ROOT_PATH	=> nepovinný parametr
+						=> relativní cesta ke kořeni adresářového stromu serveru
+
+	použití:
+		=>ftrestd -p 8888 -r ./root/
+
+	Ftrestd je iterativní souborový server pro socketovou komunikaci. Maximální počet zpráv čekajících na zpracování je 10, každá další bude zahozena. Očekává zprávy v protokolu HTTP obsahující RESTful operace. Server naslouchá v nekonečné smyčce. Server je ukončen signálem SIGTERM.
